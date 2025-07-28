@@ -5,3 +5,4 @@ class User:
     id: int | None
     username: str
     email: str
+
