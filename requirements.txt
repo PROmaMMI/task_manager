@@ -4,6 +4,7 @@ sqlalchemy[asyncio]
 asyncpg
 alembic
 pydantic
+email-validator
 pytest
 pytest-asyncio
 python-dotenv
