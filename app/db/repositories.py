@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.db.models import UserORM
 from app.domain.user import User
+from sqlalchemy.exc import IntegrityError
 
 class UserRepository:
     def __init__(self, session: AsyncSession):
@@ -24,7 +25,11 @@ class UserRepository:
     async def create(self, username: str, email: str) -> User:
         user_orm = UserORM(username=username, email=email)
         self.session.add(user_orm)
-        await self.session.commit()
+        try:
+            await self.session.commit()
+        except IntegrityError:
+            await self.session.rollback()
+            raise
         await self.session.refresh(user_orm)
         return User(id=user_orm.id, username=user_orm.username, email=user_orm.email)
     
@@ -39,7 +44,11 @@ class UserRepository:
         if email is not None:
             user.email = email
         self.session.add(user)
-        await self.session.commit()
+        try:
+            await self.session.commit()
+        except IntegrityError:
+            await self.session.rollback()
+            raise
         await self.session.refresh(user)
         return User(id=user.id, username=user.username, email=user.email)
 
